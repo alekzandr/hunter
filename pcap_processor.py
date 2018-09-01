@@ -13,7 +13,8 @@ class processor:
     def __init__(self, file):
         self.pcap_file = rdpcap(file)
         
-    def dataframe(self):
+    def dataframe(self, time="ue"):
+        self.time=time
         srcIP = []
         dstIP = []
         pktTimes = []
@@ -26,12 +27,19 @@ class processor:
                     dstIP.append(pkt[IP].dst)
                     pktBytes.append(pkt[IP].len)
                     pktTime=datetime.fromtimestamp(pkt.time)
-                    pktTimes.append(pktTime.strftime("%Y-%m-%d %H:%M:%S.%f"))
+                    pktTimes.append(pktTime.strftime("%Y%m%d%H%M%S"))
+                    
                 except:
                     pass
-        pktTimes = pd.to_datetime(pd.Series(pktTimes).astype(str),  errors="coerce")
+        
+        if self.time=="datetime":
+            pktTimes = pd.to_datetime(pd.Series(pktTimes).astype(str),  errors="coerce")
+        else:
+            pktTimes = pd.Series(pktTimes)
+        
         data = [[t, s, d, b] for t,s,d,b in zip(pktTimes,srcIP,dstIP,pktBytes)]
         labels = ['Time', 'Source', 'Destination', 'Bytes']
+        
         df = pd.DataFrame.from_records(data, columns=labels)
         #df = df.set_index("Time")
         #df = df.resample("2S").sum()
@@ -49,4 +57,3 @@ class processor:
         df2=df.resample("2S").sum()
         '''
         return df
-        
