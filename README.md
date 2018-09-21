@@ -7,4 +7,7 @@ Two notebooks included showing code used for testing methods for read and proces
 
 TODO:
 
-Create classes to handle the data wrangling, MS Clustering algorith, and plotting data.
+Create classes to handle the data wrangling, MS Clustering algorithm, and plotting data.
+
+Simple Pipeline:
+
