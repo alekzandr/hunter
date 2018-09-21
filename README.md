@@ -12,6 +12,6 @@ Create classes to handle the data wrangling, MS Clustering algorithm, and plotti
 Simple Pipeline:
 
 - Gather Raw data (Completed)
-- Clean Data (In Progress)
+- Clean Data (In Progress) (See ProcessorV2)
 - Build Model (TODO)
 - Predict (TODO)
