@@ -57,3 +57,73 @@ class processor:
         df2=df.resample("2S").sum()
         '''
         return df
+    
+    def get_lookup_table(self, list_data, form='dict'):
+        forms=['dict', 'list']
+        if form not in forms:
+            raise ValueError("Invalid output form. Expected {}".format(forms))
+        
+        x = set(list_data)
+        
+        if form == 'dict':
+            dictionary = {}
+  
+            for i,k in enumerate(list(set(x))):
+                dictionary[k] = i
+            x = dictionary
+        
+        return x
+
+    
+'''
+    ProcessorV2 requres the tcp stat output file from a tshark command (sudo tshark -r sample.pcap -q -z conv,tcp > tcp_stats.csv)
+    TODO:
+    Extend to ingest a pcap file instead of the tshark output
+'''
+class processorV2:
+    def __init__(self, file):
+        self.file = file
+    
+        # Initialize an empty array to hold the dataset
+        self.data = []
+
+    def clean(self): 
+        labels = ["src_ip", "src_port", "dst_ip", "dst_port", "src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]
+
+        # Open file and read into self.data as string of text
+        with open(self.file) as file:
+            self.data = list(file)
+
+        # Remove the original tshark column headers
+        self.data = self.data[5:]
+
+        # Split the string of data on spaces and store as a list
+        self.data = [e.split(" ") for e in self.data]
+
+        # Iterate through each element to clean and format the data
+        for index, element in enumerate(self.data):
+            temp = [e for e in element if e != '']
+            temp = [e for e in temp if e != '<->']
+            temp = [e.split(":") for e in temp]
+            _ = []
+            for e in temp:
+                _ += e
+            temp = _
+            for i,e in enumerate(temp):
+                if re.search("\\n", e) is not None:
+                    temp[i] = e.split("\n")[0]
+            self.data[index] = temp
+        
+        # Remove last entry which is a border
+        self.data.pop()
+        
+        # Convert list to pandas dataframe
+        self.data = pd.DataFrame.from_records(self.data, columns=labels)
+        
+        # Convert some columns statisical data from string to integers
+        self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]] = self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]].apply(pd.to_numeric)
+        
+        return self.data
+        
+    
+    
