@@ -82,13 +82,17 @@ class processor:
 '''
 class processorV2:
     def __init__(self, file):
+        # Store file
         self.file = file
     
         # Initialize an empty array to hold the dataset
         self.data = []
+        
+        # Store TCP labels
+        self.tcp_labels = []
 
     def clean(self): 
-        labels = ["src_ip", "src_port", "dst_ip", "dst_port", "src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]
+        self.tcp_labels = ["src_ip", "src_port", "dst_ip", "dst_port", "src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]
 
         # Open file and read into self.data as string of text
         with open(self.file) as file:
@@ -118,7 +122,7 @@ class processorV2:
         self.data.pop()
         
         # Convert list to pandas dataframe
-        self.data = pd.DataFrame.from_records(self.data, columns=labels)
+        self.data = pd.DataFrame.from_records(self.data, columns=self.tcp_labels)
         
         # Convert some columns statisical data from string to integers
         self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]] = self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]].apply(pd.to_numeric)
