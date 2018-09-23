@@ -6,6 +6,7 @@ from plotly import __version__
 from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 from datetime import datetime
 import pandas as pd
+import re
 
 init_notebook_mode(connected=True)
 
@@ -58,7 +59,83 @@ class processor:
         '''
         return df
     
-    def get_lookup_table(self, list_data, form='dict'):
+'''
+    ProcessorV2 requres the tcp stat output file from a tshark command (sudo tshark -r sample.pcap -q -z conv,tcp > tcp_stats.csv)
+    TODO:
+    Extend to ingest a pcap file instead of the tshark output
+'''
+class processorV2:
+    def __init__(self, file):
+        # Store file
+        print("\n[+] Reading File")
+        self.file = file
+    
+        # Initialize an empty array to hold the dataset
+        self.data = []
+        
+        # Store TCP labels
+        self.labels = []
+        
+        print("\n[+] File has been read into memory")
+
+    def clean(self): 
+        self.labels = ["src_ip", "src_port", "dst_ip", "dst_port", "src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]
+
+        # Open file and read into self.data as string of text
+        with open(self.file) as file:
+            self.data = list(file)
+        print("\n[+] Opening file for cleaning")  
+
+        # Remove the original tshark column headers
+        print("\n[+] Locating unstructured column labels")
+        print(self.data[:5])
+        print("\n[+] Removing unstructured column labels")
+        self.data = self.data[5:]
+        print("\n[+] Current state:")
+        print(self.data[9])
+
+        # Split the string of data on spaces and store as a list
+        print("\n[+] Cleaning dataset step 1/2")
+        self.data = [e.split(" ") for e in self.data]
+        print(self.data[9])
+        print("\n[+] Cleaning dataset step 2/2")
+        # Iterate through each element to clean and format the data
+        for index, element in enumerate(self.data):
+            temp = [e for e in element if e != '']
+            temp = [e for e in temp if e != '<->']
+            temp = [e.rsplit(":", 1) for e in temp]
+            _ = []
+            for e in temp:
+                _ += e
+                temp = _
+                for i,e in enumerate(temp):
+                    if re.search("\\n", e) is not None:
+                        temp[i] = e.split("\n")[0]
+                        self.data[index] = temp
+        
+        print("\n[+] Dataset has been cleaned")
+        print(self.data[9])
+        
+        # Remove last entry which is a border
+        print("\n[+] Remove bottom border")
+        self.data.pop()
+        #print("\n[+] Number of columns for final dataset")
+        #print(len(self.data))
+        
+        
+        
+        # Convert list to pandas dataframe
+        print("\n[+] Converting dataset to Pandas Dataframe")
+        self.data = pd.DataFrame.from_records(self.data, columns=self.labels)
+        
+        print("\n[+] Setting appropriate dataframe columns to numeric datatypes")
+        # Convert some columns statisical data from string to integers
+        self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]] = self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]].apply(pd.to_numeric)
+        #print("\n[*] DEBUG: Ignoring conversion to pandas...returning as list")
+        print("\n[+] Done")
+        return self.data
+        
+def get_lookup_table(list_data, form='dict'):
         forms=['dict', 'list']
         if form not in forms:
             raise ValueError("Invalid output form. Expected {}".format(forms))
@@ -73,61 +150,4 @@ class processor:
             x = dictionary
         
         return x
-
-    
-'''
-    ProcessorV2 requres the tcp stat output file from a tshark command (sudo tshark -r sample.pcap -q -z conv,tcp > tcp_stats.csv)
-    TODO:
-    Extend to ingest a pcap file instead of the tshark output
-'''
-class processorV2:
-    def __init__(self, file):
-        # Store file
-        self.file = file
-    
-        # Initialize an empty array to hold the dataset
-        self.data = []
-        
-        # Store TCP labels
-        self.tcp_labels = []
-
-    def clean(self): 
-        self.tcp_labels = ["src_ip", "src_port", "dst_ip", "dst_port", "src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]
-
-        # Open file and read into self.data as string of text
-        with open(self.file) as file:
-            self.data = list(file)
-
-        # Remove the original tshark column headers
-        self.data = self.data[5:]
-
-        # Split the string of data on spaces and store as a list
-        self.data = [e.split(" ") for e in self.data]
-
-        # Iterate through each element to clean and format the data
-        for index, element in enumerate(self.data):
-            temp = [e for e in element if e != '']
-            temp = [e for e in temp if e != '<->']
-            temp = [e.split(":") for e in temp]
-            _ = []
-            for e in temp:
-                _ += e
-            temp = _
-            for i,e in enumerate(temp):
-                if re.search("\\n", e) is not None:
-                    temp[i] = e.split("\n")[0]
-            self.data[index] = temp
-        
-        # Remove last entry which is a border
-        self.data.pop()
-        
-        # Convert list to pandas dataframe
-        self.data = pd.DataFrame.from_records(self.data, columns=self.tcp_labels)
-        
-        # Convert some columns statisical data from string to integers
-        self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]] = self.data[["src_frames", "src_bytes", "dst_frames", "dst_bytes", "total_frames", "total_bytes", "relative_start", "duration"]].apply(pd.to_numeric)
-        
-        return self.data
-        
-    
     
