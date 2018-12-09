@@ -42,7 +42,7 @@ def setup():
     malicious_traffic = data[data["labels"] != "BENIGN"]
     
     # sample additional training data to be 2x the size of the ground truth labeled malicious traffic
-    training_data = data.sample(int(len(malicious_traffic)/2))
+    training_data = data.sample(int(len(malicious_traffic)))
     
     # concatnate additional training data and known malicious traffic
     training_data = pd.concat([malicious_traffic, training_data])
