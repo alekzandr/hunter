@@ -1,8 +1,16 @@
 import glob
 import tensorflow as tf 
-import pcap_processor
 import numpy as np
 import pandas as pd
+
+
+def clean_text(word):
+    (laptops["cpu"].str.replace("GHz","")
+                    .str.rsplit(n=1,expand=True)
+                        .iloc[:,1]
+                        .astype(float)
+                        )
+
 
 def setup():
     
@@ -37,6 +45,11 @@ def setup():
     
     # recombine labels with the dataset
     data["labels"] = y_labels
+    
+    # remove symbols from labels and lower
+    data["labels"] = data["labels"].str.replace("�", "")
+    data["labels"] = data["labels"].str.lower()
+                      
     
     # Save all maicious traffic to malicious_traffic
     malicious_traffic = data[data["labels"] != "BENIGN"]
