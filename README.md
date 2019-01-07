@@ -1,17 +1,7 @@
-Threat Hunter repository for Edderkoppen. 
+# Threat Hunter
 
+Threat Hunter is machine learning based Intrusion Detection System specialized in detecting malicious activity from traffic flow statistics only
 
-Created a class for processing pcap data.
+# Dataset
 
-Two notebooks included showing code used for testing methods for read and processing data to be fitted by a mean-shift clustering algorithm. Also included plot diagram.
-
-TODO:
-
-Create classes to handle the data wrangling, MS Clustering algorithm, and plotting data.
-
-Simple Pipeline:
-
-- Gather Raw data (Completed)
-- Clean Data (In Progress) (See ProcessorV2)
-- Build Model (TODO)
-- Predict (TODO)
+The datasets used to train and evaluate the systems are based on the <a href="https://www.unb.ca/cic/datasets/ids-2017.html">CIC-2017-IDS</a> data provided by the Canadian Institue of Cybersecurity.
