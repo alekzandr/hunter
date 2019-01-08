@@ -16,7 +16,7 @@ from sklearn.model_selection import StratifiedKFold
 import lightgbm as lgb
 import cic_2017_setup
 
-_, train = cic_2017_setup.setup()
+full_data, train = cic_2017_setup.setup()
 
 TARGET = 'labels'
 
@@ -58,12 +58,9 @@ def predict_cross_validation(test, clfs):
     return ret
 	
 	
-def predict_test_chunk(features, clfs, dtypes, filename='tmp.csv', chunks=100000):
+def predict_test_chunk(predict_data, features, clfs, dtypes, filename='tmp.csv'):
     
-    for i_c, df in enumerate(pd.read_csv("test.csv", 
-                                         chunksize=chunks, 
-                                         dtype=dtypes, 
-                                         iterator=True)):
+    for i_c, df in enumerate(predict_data):
         
 
         preds_df = predict_cross_validation(df[features], clfs)
@@ -118,4 +115,4 @@ clfs, score = modeling_cross_validation(model_params, train[train_features], tra
 filename = 'subm_{:.6f}_{}_{}.csv'.format(score, 'LGBM', dt.now().strftime('%Y-%m-%d-%H-%M'))
 train = None
 gc.collect()
-predict_test_chunk(train_features, clfs, dtypes, filename=filename, chunks=500000)
+predict_test_chunk(full_data, train_features, clfs, dtypes, filename=filename, chunks=500000)
