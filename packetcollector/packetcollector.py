@@ -1,20 +1,15 @@
-class packetcollector:
-	
-	def __init__(self, time=60, interface, out_dir=None):
-	
-		'''
-		inputs:
+from scapy.all import *
 
-		time: float
-			time input tells collectTraffic how long to collect packets in seconds
-			on the interface.
-			example: time=5 for collecting traffic for 5 seconds
 
-		interface: string
-			
-		'''
-		
-		self.time = time
-		self.interface = interface
-		self.out_dir = os.getcwd()
-		self.packets = None
+class PacketCollector:
+    def __init__(self, timeout=60, interface="ens33", out_dir="/home/julian/Desktop/test.pcap"):
+        self.timeout = timeout
+        self.interface = interface
+        self.out_dir = out_dir
+        self.packets = None
+
+    def capture(self):
+        self.packets = sniff(iface=self.interface, timeout=self.timeout)
+
+    def save(self):
+        wrpcap(self.out_dir, self.packets)
