@@ -28,8 +28,13 @@ class PacketCollector:
     def _get_filename(self):
 	    return str(time.time()) + ".pcap" 
 	
-	    #Stream allows for multiple captures to occur and to continue to save to the same folder
-    def stream(self, amount):
-        for i in range(0, amount):
-            self.capture()
-            self.save()
+	    #Stream allows for multiple captures to occur and to continue to save to the same folder. 0 is infinite
+    def stream(self, x):
+        if x is 0:
+            while True:
+                self.capture()
+                self.save()
+        else:
+            for i in range(0, x):
+                self.capture()
+                self.save()
