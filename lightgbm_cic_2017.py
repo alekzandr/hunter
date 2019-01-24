@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 from sklearn.model_selection import StratifiedKFold
 from sklearn import preprocessing
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 import lightgbm as lgb
 import cic_2017_setup
@@ -103,7 +104,7 @@ dtypes = {
 
 le = preprocessing.LabelEncoder()
 path = "/Users/kyletopasna/Documents/hunter/ISCX CIC/CIC-IDS-2017/"
-train = pd.read_csv(path + "train.csv", dtype=dtypes)
+train = pd.read_csv(path + "train.csv", dtype=dtypes, nrows=2000000)
 
 TARGET = 'label'
 
@@ -129,8 +130,12 @@ def modeling_cross_validation(params, X, y, nr_folds=5):
         clfs.append(model)
         oof_preds[val_idx] = model.predict(X_valid, num_iteration=model.best_iteration_)
         
-    score = model.best_score
-    print(score)
+    score = f1_score(y, oof_preds)
+    print("f1 score: {}".format(score))
+    print("accuracy score: {}".format(accuracy_score(y, oof_preds)))
+    print("precision score: {}".format(precision_score(y, oof_preds)))
+    print("recall score: {}".format(recall_score(y, oof_preds)))
+
     return clfs, score
 	
 
