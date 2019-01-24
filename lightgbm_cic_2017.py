@@ -19,8 +19,91 @@ import cic_2017_setup
 
 gc.collect()
 
+dtypes = {
+    "destination_port":               "int32",
+"flow_duration":                  "int32",
+"total_fwd_packets":              "int32",
+"total_backward_packets":         "int32",
+"total_length_of_fwd_packets":    "int32",
+"total_length_of_bwd_packets":    "int32",
+"fwd_packet_length_max":         "int32",
+"fwd_packet_length_min":          "int32",
+"fwd_packet_length_mean":         "float32",
+"fwd_packet_length_std":          "float32",
+"bwd_packet_length_max":          "int32",
+"bwd_packet_length_min":          "int32",
+"bwd_packet_length_mean":         "float32",
+"bwd_packet_length_std":          "float32",
+"flow_bytes/s":                   "float32",
+"flow_packets/s":                 "float32",
+"flow_iat_mean":                  "float32",
+"flow_iat_std":                   "float32",
+"flow_iat_max":                   "int32",
+"flow_iat_min":                   "int32",
+"fwd_iat_total":                  "int32",
+"fwd_iat_mean":                   "float32",
+"fwd_iat_std":                    "float32",
+"fwd_iat_max":                    "int32",
+"fwd_iat_min":                    "int32",
+"bwd_iat_total":                  "int32",
+"bwd_iat_mean":                   "float32",
+"bwd_iat_std":                    "float32",
+"bwd_iat_max":                    "int32",
+"bwd_iat_min":                    "int32",
+"fwd_psh_flags":                  "int32",
+"bwd_psh_flags":                  "int32",
+"fwd_urg_flags":                  "int32",
+"bwd_urg_flags":                  "int32",
+"fwd_header_length":              "int32",
+"bwd_header_length":              "int32",
+"fwd_packets/s":                  "float32",
+"bwd_packets/s":                  "float32",
+"min_packet_length":              "int32",
+"max_packet_length":              "int32",
+"packet_length_mean":             "float32",
+"packet_length_std":              "float32",
+"packet_length_variance":         "float32",
+"fin_flag_count":                 "int32",
+"syn_flag_count":                 "int32",
+"rst_flag_count":                 "int32",
+"psh_flag_count":                 "int32",
+"ack_flag_count":                 "int32",
+"urg_flag_count":                 "int32",
+"cwe_flag_count":                 "int32",
+"ece_flag_count":                 "int32",
+"down/up_ratio":                  "int32",
+"average_packet_size":            "float32",
+"avg_fwd_segment_size":           "float32",
+"avg_bwd_segment_size":           "float32",
+"fwd_header_length.1":            "int32",
+"fwd_avg_bytes/bulk":             "int32",
+"fwd_avg_packets/bulk":           "int32",
+"fwd_avg_bulk_rate":             "int32",
+"bwd_avg_bytes/bulk":             "int32",
+"bwd_avg_packets/bulk":           "int32",
+"bwd_avg_bulk_rate":              "int32",
+"subflow_fwd_packets":            "int32",
+"subflow_fwd_bytes":              "int32",
+"subflow_bwd_packets":            "int32",
+"subflow_bwd_bytes":              "int32",
+"init_win_bytes_forward":         "int32",
+"init_win_bytes_backward":        "int32",
+"act_data_pkt_fwd":               "int32",
+"min_seg_size_forward":           "int32",
+"active_mean":                    "float32",
+"active_std":                     "float32",
+"active_max":                     "int32",
+"active_min":                     "int32",
+"idle_mean":                      "float32",
+"idle_std":                       "float32",
+"idle_max":                       "int32",
+"idle_min":                       "int32",
+"label":                          "category"
+}
+
 le = preprocessing.LabelEncoder()
-_, train = cic_2017_setup.setup()
+path = "/Users/kyletopasna/Documents/hunter/ISCX CIC/CIC-IDS-2017/"
+train = pd.read_csv(path + "train.csv", dtype=dtypes)
 
 TARGET = 'label'
 
@@ -62,20 +145,24 @@ def predict_cross_validation(test, clfs):
     return ret
 	
 	
-def predict_test_chunk(X, clfs, dtypes, filename='tmp.csv', chunks=100000):
-    
-    preds_df = predict_cross_validation(X, clfs)
-    preds_df = preds_df.to_frame(TARGET)
+def predict_test_chunk(features, clfs, dtypes, filename='tmp.csv', chunks=100000):
     
     print("Writing test predictions to file")
+    for i_c, df in enumerate(pd.read_csv('test.csv', chunksize=chunks, dtype=dtypes, iterator=True)):
+
+        df.set_index(TARGET_INDEX, inplace=True)
+
+
+        preds_df = predict_cross_validation(df[features], clfs)
+        preds_df = preds_df.to_frame(TARGET)
     
-    if i_c == 0:
-        preds_df.to_csv(filename, header=True, mode='a')
-    else:
-        preds_df.to_csv(filename, header=False, mode='a')
-    
-    del preds_df
-    gc.collect()
+        if i_c == 0:
+            preds_df.to_csv(filename, header=True, mode='a')
+        else:
+            preds_df.to_csv(filename, header=False, mode='a')
+        
+        del preds_df
+        gc.collect()
     print("Done")
     
     
@@ -115,7 +202,7 @@ le.fit(train[TARGET])
 train[TARGET] = le.transform(train[TARGET])
 
 clfs, score = modeling_cross_validation(model_params, train[train_features], train[TARGET], nr_folds=5)
-filename = 'subm_{:.6f}_{}_{}.csv'.format(score, 'LGBM', dt.now().strftime('%Y-%m-%d-%H-%M'))
+filename = 'Predictions{:.6f}_{}_{}.csv'.format(score, 'LGBM', dt.now().strftime('%Y-%m-%d-%H-%M'))
 train = None
 gc.collect()
 predict_test_chunk(train[train_features], clfs, dtypes, filename=filename, chunks=500000)
