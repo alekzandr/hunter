@@ -12,13 +12,17 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from sklearn.model_selection import StratifiedKFold
+from sklearn import preprocessing
 
 import lightgbm as lgb
 import cic_2017_setup
 
-full_data, train = cic_2017_setup.setup()
+gc.collect()
 
-TARGET = 'labels'
+le = preprocessing.LabelEncoder()
+_, train = cic_2017_setup.setup()
+
+TARGET = 'label'
 
 def modeling_cross_validation(params, X, y, nr_folds=5):
     clfs = list()
@@ -58,24 +62,20 @@ def predict_cross_validation(test, clfs):
     return ret
 	
 	
-def predict_test_chunk(predict_data, features, clfs, dtypes, filename='tmp.csv'):
+def predict_test_chunk(X, clfs, dtypes, filename='tmp.csv', chunks=100000):
     
-    for i_c, df in enumerate(predict_data):
-        
-
-        preds_df = predict_cross_validation(df[features], clfs)
-        preds_df = preds_df.to_frame(TARGET)
-        
-        print("Writing test predictions to file")
-        
-        if i_c == 0:
-            preds_df.to_csv(filename, header=True, mode='a')
-        else:
-            preds_df.to_csv(filename, header=False, mode='a')
-        
-        del preds_df
-        gc.collect()
-        print("Grabbin more tests")
+    preds_df = predict_cross_validation(X, clfs)
+    preds_df = preds_df.to_frame(TARGET)
+    
+    print("Writing test predictions to file")
+    
+    if i_c == 0:
+        preds_df.to_csv(filename, header=True, mode='a')
+    else:
+        preds_df.to_csv(filename, header=False, mode='a')
+    
+    del preds_df
+    gc.collect()
     print("Done")
     
     
@@ -111,8 +111,11 @@ train_features = list()
 
 train_features = [f for f in train.columns if f != TARGET]
 
+le.fit(train[TARGET])
+train[TARGET] = le.transform(train[TARGET])
+
 clfs, score = modeling_cross_validation(model_params, train[train_features], train[TARGET], nr_folds=5)
 filename = 'subm_{:.6f}_{}_{}.csv'.format(score, 'LGBM', dt.now().strftime('%Y-%m-%d-%H-%M'))
 train = None
 gc.collect()
-predict_test_chunk(full_data, train_features, clfs, dtypes, filename=filename, chunks=500000)
+predict_test_chunk(train[train_features], clfs, dtypes, filename=filename, chunks=500000)
