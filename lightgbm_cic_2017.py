@@ -4,6 +4,7 @@ from functools import partial, wraps
 from datetime import datetime as dt
 import warnings
 warnings.simplefilter('ignore', FutureWarning)
+from tqdm import tqdm
 
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
@@ -11,7 +12,7 @@ import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
@@ -99,12 +100,8 @@ dtypes = {
 "idle_std":                       "float32",
 "idle_max":                       "int32",
 "idle_min":                       "int32",
-"label":                          "category"
+"label":                          "object"
 }
-
-le = preprocessing.LabelEncoder()
-path = "/Users/kyletopasna/Documents/hunter/ISCX CIC/CIC-IDS-2017/"
-train = pd.read_csv(path + "train.csv", dtype=dtypes, nrows=2000000)
 
 TARGET = 'label'
 
@@ -112,8 +109,8 @@ def modeling_cross_validation(params, X, y, nr_folds=5):
     clfs = list()
     oof_preds = np.zeros(X.shape[0])
     # Split data with kfold
-    kfolds = StratifiedKFold(n_splits=nr_folds, shuffle=False, random_state=42)
-    for n_fold, (trn_idx, val_idx) in enumerate(kfolds.split(X, y)):
+    folds = KFold(n_splits=nr_folds, shuffle=False, random_state=42)
+    for n_fold, (trn_idx, val_idx) in enumerate(folds.split(X, y)):
         X_train, y_train = X.iloc[trn_idx], y.iloc[trn_idx]
         X_valid, y_valid = X.iloc[val_idx], y.iloc[val_idx]
 
@@ -173,7 +170,7 @@ def predict_test_chunk(features, clfs, dtypes, filename='tmp.csv', chunks=100000
     
 model_params = {
             'device': 'cpu', 
-        "objective": "multiclass",
+        "objective": "binary",
         "boosting_type": "gbdt", 
         #"learning_rate": 0.03,
         #"max_depth": 8,
@@ -196,18 +193,54 @@ model_params = {
         #'max_cat_threshold': 32, 
         #"random_state": 1,
         #"silent": True,
-        #"metric": "multi_logloss",
+        #"metric": "auc",
     }    
     
+
+
+path = "/Users/kyletopasna/Documents/hunter/ISCX CIC/CIC-IDS-2017/"
+
+# Load and generate categories
+print("[+] Generating labels for conversion before training")
+labels = pd.read_csv(path + "test.csv", usecols=[TARGET])
+#le = preprocessing.LabelEncoder()
+#le.fit(labels)
+#print(labels["label"].unique())
+malicious_labels = [la for la in labels["label"] if la != "benign"]
+#print(malicious_labels)
+
+
+# Free memory
+labels = None
+gc.collect()
+
+
+# Load training set
+print("[+] Loading training set and cleaning labels")
+train = pd.read_csv(path + "train.csv", dtype=dtypes, nrows=2000000)
 train_features = list()
 
+# Fix labels
+tqdm.pandas()
+
 train_features = [f for f in train.columns if f != TARGET]
+print("[+] Encoding malicious labels")
+#train[TARGET] = train[TARGET].replace(malicious_labels, 1)
+#train[TARGET] = train[TARGET].progress_apply(lambda x: 1 if x in malicious_labels else 0)
+train[train[TARGET].isin(malicious_labels)] = 1
+print("[+] Encoding benign labels")
+train[train[TARGET].isin(["benign"])] = 0
+#print(train[TARGET].unique())
 
-le.fit(train[TARGET])
-train[TARGET] = le.transform(train[TARGET])
+#train[TARGET] = train[TARGET].replace("benign", 0)
+#print(train[TARGET].unique())
+print("[+] Casting labels to smaller value")
+train[TARGET] = train[TARGET].astype(int)
 
+print("[-] Beginning Cross-Validaton")
 clfs, score = modeling_cross_validation(model_params, train[train_features], train[TARGET], nr_folds=5)
 filename = 'Predictions{:.6f}_{}_{}.csv'.format(score, 'LGBM', dt.now().strftime('%Y-%m-%d-%H-%M'))
 train = None
 gc.collect()
+print(dtypes)
 predict_test_chunk(train[train_features], clfs, dtypes, filename=filename, chunks=500000)
