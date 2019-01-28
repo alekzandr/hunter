@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 
 class flowmeter:
+
     """
     This is the flowmeter class. It's purpose is to
     take in a pcap file and output a csv file
@@ -11,12 +12,54 @@ class flowmeter:
     """
     
     def __init__(self, pcap=None):
+        
+        """
+        Args:
+            pcap (str): OS location to a pcap file.
+        """
+
         self._pcap = pcap
 
     def load_pcap(self, pcap):
+
+        """
+        This function takes in a pcap file saves it
+        as a scapy PacketList.
+
+        Args:
+            pcap (str): OS location to a pcap file.
+        """
         self._packets = rdpcap(pcap)
     
     def _get_sessions(self, packet):
+
+        """
+        This function takes in packets and builds
+        bi-directional flows between source and
+        destinations.
+
+        This is to be used in conjuction with a
+        scapy PacketList object.
+
+        Example:
+
+        packet_capture = rdpcap(test.pcap)
+        session_flows = packet_capture.sessions(get_sessions)
+
+        Args:
+            packet (packet): A packet placeholder handled by scapy.
+
+        Returns a dictionary with session information as the key
+        and the corresponding bi-directional PacketList object
+
+        Example Output:
+
+            {
+            "['192.168.86.21', '192.168.86.22', 60604, 8009, 'TCP']": <PacketList: TCP:6 UDP:0 ICMP:0 Other:0>, 
+            "['192.168.86.21', '34.212.215.14', 443, 60832, 'TCP']": <PacketList: TCP:9 UDP:0 ICMP:0 Other:0>
+            }
+
+        """
         sess = "Other"
         if "Ether" in packet:
             if "IP" in packet:
@@ -40,6 +83,14 @@ class flowmeter:
 
     def build_dataframe(self, packet_list):
 
+        """
+        This function takes in a scapy PacketList object and 
+        builds a pandas dataframe.
+
+        Args:
+            packet_list (PacketList): A scapy PacketList object.
+        
+        """
         ip_fields = [field.name for field in IP().fields_desc]
         tcp_fields = [field.name for field in TCP().fields_desc]
         udp_fields = [field.name for field in UDP().fields_desc]
