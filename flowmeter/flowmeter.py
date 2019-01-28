@@ -136,3 +136,29 @@ class flowmeter:
         # Drop old index column
         df = df.drop(columns="index")
         return df
+
+    def get_src_ip(self, df):
+
+        """
+        This function should take in a pandas dataframe object
+        that contains all the information for a single bi-directional
+        flow. It will return the source IP address of the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        
+        """
+        return df["src"].unique().tolist()[0]
+
+    def get_dst_ip(self, df):
+
+        """
+        This function should take in a pandas dataframe object
+        that contains all the information for a single bi-directional
+        flow. It will return the destination IP address of the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        
+        """
+        return df["src"].unique().tolist()[1]
