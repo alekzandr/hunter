@@ -18,7 +18,7 @@ class flowmeter:
             pcap (str): OS location to a pcap file.
         """
 
-        self._pcap = pcap
+        self._pcap = rdpcap(pcap)
 
     def load_pcap(self, pcap):
 
@@ -29,7 +29,7 @@ class flowmeter:
         Args:
             pcap (str): OS location to a pcap file.
         """
-        self._packets = rdpcap(pcap)
+        self._pcap = rdpcap(pcap)
     
     def _get_sessions(self, packet):
 
@@ -44,7 +44,7 @@ class flowmeter:
         Example:
 
         packet_capture = rdpcap(test.pcap)
-        session_flows = packet_capture.sessions(get_sessions)
+        session_flows = packet_capture.sessions(_get_sessions)
 
         Args:
             packet (packet): A packet placeholder handled by scapy.
@@ -91,6 +91,7 @@ class flowmeter:
             packet_list (PacketList): A scapy PacketList object.
         
         """
+        
         ip_fields = [field.name for field in IP().fields_desc]
         tcp_fields = [field.name for field in TCP().fields_desc]
         udp_fields = [field.name for field in UDP().fields_desc]
@@ -137,6 +138,16 @@ class flowmeter:
         df = df.drop(columns="index")
         return df
 
+    def build_sessions(self):
+			  
+		"""
+		This function returns dictionary of bi-directional
+        flows.
+
+		"""
+        
+        return self._pcap.sessions(self._get_sessions)
+
     def get_src_ip(self, df):
 
         """
@@ -148,6 +159,7 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         
         """
+        
         return df["src"].unique().tolist()[0]
 
     def get_dst_ip(self, df):
@@ -159,6 +171,16 @@ class flowmeter:
 
         Args:
             df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        return df["src"].unique().tolist()[1]
+		
+	def get_flow_duration(self, df):
         
         """
-        return df["src"].unique().tolist()[1]
+        This function returns the total time for the session flow.
+        """
+        
+        idx = df.columns.get_loc("time")
+        return 1000000 * (df.iloc[-1, idx] - test_flow.iloc[0,idx])
+	
