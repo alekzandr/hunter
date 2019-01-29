@@ -294,4 +294,30 @@ class flowmeter:
         src_df = df.loc[df["src"]==src]
         return  max(src_df["payload"])
 
+    def get_mean_forward_packet_size(self, df):
     
+        """
+        This function calculates the mean payload size that
+        originated from the source IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = self.get_src_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["payload"].mean()
+
+    def get_mean_backward_packet_size(self, df):
+    
+        """
+        This function calculates the mean payload size that
+        originated from the destination IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = self.get_dst_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["payload"].mean()
