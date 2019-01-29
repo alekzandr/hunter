@@ -211,3 +211,29 @@ class flowmeter:
         bwd_df = df.loc[df["src"]==bwd]
         return bwd_df["size"].sum()
 	
+    def get_total_forward_packets(df):
+    
+        """
+        This function calculates the total number of packets that
+        originated from the source IP address
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = get_src_ip(df)
+        return  df.loc[df['src']==src].shape[0]
+
+    
+def get_total_backward_packets(df):
+    
+        """
+        This function calculates the total number of packets that
+        originated from the destination IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = get_dst_ip(df)
+        return  df.loc[df['src']==src].shape[0]
