@@ -91,7 +91,6 @@ class flowmeter:
             packet_list (PacketList): A scapy PacketList object.
         
         """
-        
         ip_fields = [field.name for field in IP().fields_desc]
         tcp_fields = [field.name for field in TCP().fields_desc]
         udp_fields = [field.name for field in UDP().fields_desc]
@@ -145,7 +144,6 @@ class flowmeter:
         flows.
 
 		"""
-        
         return self._pcap.sessions(self._get_sessions)
 
     def get_src_ip(self, df):
@@ -159,7 +157,6 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         
         """
-        
         return df["src"].unique().tolist()[0]
 
     def get_dst_ip(self, df):
@@ -171,8 +168,8 @@ class flowmeter:
 
         Args:
             df (Dataframe): A bi-directional flow pandas dataframe.
-        """
         
+        """
         return df["src"].unique().tolist()[1]
 		
 	def get_flow_duration(self, df):
@@ -180,7 +177,21 @@ class flowmeter:
         """
         This function returns the total time for the session flow.
         """
-        
         idx = df.columns.get_loc("time")
         return 1000000 * (df.iloc[-1, idx] - test_flow.iloc[0,idx])
+		
+    def get_total_len_foward_packets(df):
+        
+		"""
+        This function calculates the total length of all packets that
+        originated from the source IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+			
+        """
+        
+		src = df["src"].unique().tolist()[0]
+        src_df = df.loc[df["src"]==src]
+        return src_df["size"].sum()
 	
