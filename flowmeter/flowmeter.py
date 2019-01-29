@@ -407,3 +407,29 @@ class flowmeter:
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
         return  src_df["time"]
+
+    def get_iat_forward_min_times(self, df):
+    
+        """
+        This function returns the minimum inter arrival
+        time (IAT) between packets from the source.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src_times = self.get_src_times(df)
+        return  min(src_times.diff().dropna()) * 1000000
+
+    def get_iat_backwards_min_times(self, df):
+        
+        """
+        This function returns the minimum inter arrival
+        time (IAT) between packets from the destination.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src_times = self.get_dst_times(df)
+        return  min(src_times.diff().dropna()) * 1000000
