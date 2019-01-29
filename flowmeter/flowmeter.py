@@ -194,4 +194,20 @@ class flowmeter:
 		src = df["src"].unique().tolist()[0]
         src_df = df.loc[df["src"]==src]
         return src_df["size"].sum()
+		
+    
+    def get_total_len_backward_packets(df):
+	
+        """
+        This function calculates the total length of all packets that
+        originated from the destination IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+			
+        """
+        
+        bwd = df["src"].unique().tolist()[1]
+        bwd_df = df.loc[df["src"]==bwd]
+        return bwd_df["size"].sum()
 	
