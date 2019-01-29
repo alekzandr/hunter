@@ -377,3 +377,33 @@ class flowmeter:
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
         return  src_df["time"].diff().sum() * 1000000
+
+    def get_src_times(self, df):
+    
+        """
+        This function returns the "time" Series object 
+        from the passed in dataframe for the session
+        source.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_src_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["time"]
+
+    def get_dst_times(self, df):
+        
+        """
+        This function returns the "time" Series object 
+        from the passed in dataframe for the session
+        destination.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_dst_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["time"]
