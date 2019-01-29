@@ -178,7 +178,7 @@ class flowmeter:
         This function returns the total time for the session flow.
         """
         idx = df.columns.get_loc("time")
-        return 1000000 * (df.iloc[-1, idx] - test_flow.iloc[0,idx])
+        return 1000000 * (df.iloc[-1, idx] - df.iloc[0,idx])
 		
     def get_total_len_foward_packets(self, df):
         
@@ -321,3 +321,31 @@ class flowmeter:
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
         return  src_df["payload"].mean()
+    
+    def get_std_forward_packet_size(self, df):
+    
+        """
+        This function calculates the standard deviation of payload sizes that
+        originated from the source IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = self.get_src_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["payload"].std()
+
+    def get_std_backward_packet_size(self, df):
+    
+        """
+        This function calculates the standard deviaton of payload sizes that
+        originated from the destination IP address
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_dst_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["payload"].std()
