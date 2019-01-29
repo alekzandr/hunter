@@ -180,7 +180,7 @@ class flowmeter:
         idx = df.columns.get_loc("time")
         return 1000000 * (df.iloc[-1, idx] - test_flow.iloc[0,idx])
 		
-    def get_total_len_foward_packets(df):
+    def get_total_len_foward_packets(self, df):
         
         """
         This function calculates the total length of all packets that
@@ -221,7 +221,7 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
     
-        src = get_src_ip(df)
+        src = self.get_src_ip(df)
         return  df.loc[df['src']==src].shape[0]
 
     
@@ -265,3 +265,33 @@ class flowmeter:
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
         return  min(src_df["payload"])
+
+    def get_max_forward_packet_size(self, df):
+    
+        """
+        This function calculates the maximum payload size that
+        originated from the source IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = self.get_src_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  max(src_df["payload"])
+
+    def get_max_backward_packet_size(self, df):
+    
+        """
+        This function calculates the maximum payload size that
+        originated from the destination IP address
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        src = self.get_dst_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  max(src_df["payload"])
+
+    
