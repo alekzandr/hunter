@@ -349,3 +349,31 @@ class flowmeter:
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
         return  src_df["payload"].std()
+
+    def get_iat_forward_total_time(self, df):
+    
+        """
+        This function calculates the total inter arrival 
+        time (iat) of packets from the source IP address.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        src = self.get_src_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["time"].diff().sum() * 1000000
+
+    def get_iat_backward_total_time(self, df):
+    
+        """
+        This function calculates the total inter arrival 
+        time (iat) of packets from the destination IP address.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        src = self.get_dst_ip(df)
+        src_df = df.loc[df["src"]==src]
+        return  src_df["time"].diff().sum() * 1000000
