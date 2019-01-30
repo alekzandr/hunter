@@ -485,3 +485,29 @@ class flowmeter:
         
         src_times = self.get_dst_times(df)
         return  src_times.diff().dropna().mean() * 1000000
+
+    def get_iat_forward_std_times(df):
+    
+        """
+        This function returns the standard deviation for inter arrival
+        time (IAT) between packets from the source.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src_times = get_src_times(df)
+        return  src_times.diff().dropna().std() * 1000000
+
+    def get_iat_backwards_std_times(df):
+        
+        """
+        This function returns the standard deviation inter arrival
+        time (IAT) between packets from the destination.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src_times = get_dst_times(df)
+        return  src_times.diff().dropna().std() * 1000000
