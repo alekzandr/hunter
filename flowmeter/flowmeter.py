@@ -556,7 +556,7 @@ class flowmeter:
         df["flags"] = self.decode_flags(df).str.contains(flag)
         return df[df["flags"] == True].shape[0]
 
-    def get_total_forward_push_flags(df):
+    def get_total_forward_push_flags(self, df):
     
         """
         This function calculates the total number of
@@ -567,11 +567,11 @@ class flowmeter:
         """
         
         
-        df = remove_duplicate_flags_col(df)
-        src = get_src_ip(df)
-        return count_flags(df, src, "P")
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        return self.count_flags(df, src, "P")
 
-    def get_total_backward_push_flags(df):
+    def get_total_backward_push_flags(self, df):
         
         """
         This function calculates the total number of
@@ -582,6 +582,36 @@ class flowmeter:
         """
         
         
-        df = remove_duplicate_flags_col(df)
-        src = get_dst_ip(df)
-        return count_flags(df, src, "P")
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_dst_ip(df)
+        return self.count_flags(df, src, "P")
+
+    def get_total_forward_urgent_flags(self, df):
+    
+        """
+        This function calculates the total number of
+        urgent flags in the forward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        return self.count_flags(df, src, "U")
+
+    def get_total_backward_urgent_flags(self, df):
+        
+        """
+        This function calculates the total number of
+        urgent flags in the forward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_dst_ip(df)
+        return self.count_flags(df, src, "U")
