@@ -433,3 +433,29 @@ class flowmeter:
         
         src_times = self.get_dst_times(df)
         return  min(src_times.diff().dropna()) * 1000000
+
+    def get_iat_forward_max_times(df):
+    
+        """
+        This function returns the maximum inter arrival
+        time (IAT) between packets from the source.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src_times = get_src_times(df)
+        return  max(src_times.diff().dropna()) * 1000000
+
+    def get_iat_backwards_max_times(df):
+        
+        """
+        This function returns the maximum inter arrival
+        time (IAT) between packets from the destination.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src_times = get_dst_times(df)
+        return  max(src_times.diff().dropna()) * 1000000
