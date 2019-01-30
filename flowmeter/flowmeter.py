@@ -486,7 +486,7 @@ class flowmeter:
         src_times = self.get_dst_times(df)
         return  src_times.diff().dropna().mean() * 1000000
 
-    def get_iat_forward_std_times(df):
+    def get_iat_forward_std_times(self, df):
     
         """
         This function returns the standard deviation for inter arrival
@@ -496,10 +496,10 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
         
-        src_times = get_src_times(df)
+        src_times = self.get_src_times(df)
         return  src_times.diff().dropna().std() * 1000000
 
-    def get_iat_backwards_std_times(df):
+    def get_iat_backwards_std_times(self, df):
         
         """
         This function returns the standard deviation inter arrival
@@ -509,5 +509,49 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
         
-        src_times = get_dst_times(df)
+        src_times = self.get_dst_times(df)
         return  src_times.diff().dropna().std() * 1000000
+
+    def remove_duplicate_flags_col(self, df):
+    
+        """
+        This function removes the first occurence
+        of the 'flags' column due to multiple
+        columns named 'flags'
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        column_numbers = [x for x in range(df.shape[1])]
+        column_numbers.remove(5)
+        return df.iloc[:, column_numbers]
+
+    def decode_flags(self, df):
+    
+        """
+        This function decodes the bitwise flag
+        into a string.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+            
+        """
+        
+        return df["flags"].apply(lambda x: str(x))
+
+    def count_flags(self, df, ip, flag):
+        
+        """
+        This function counts the total number of
+        flags from the specified origin.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+            ip (String): A string representation of the IP address
+            flag (String): The first letter of the flag to search.
+        """
+        
+        df = df.loc[df["src"]==ip]
+        df["flags"] = self.decode_flags(df).str.contains(flag)
+        return df[df["flags"] == True].shape[0]
