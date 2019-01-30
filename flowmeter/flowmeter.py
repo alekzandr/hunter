@@ -615,3 +615,31 @@ class flowmeter:
         df = self.remove_duplicate_flags_col(df)
         src = self.get_dst_ip(df)
         return self.count_flags(df, src, "U")
+
+    def get_total_header_len_forward_packets(df):
+    
+        """
+        This function calculates the total size
+        of headers in the forward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+            
+        src = get_src_ip(df)
+        src_df = df[df["src"]==src]
+        return src_df["size"].sum() - get_total_len_forward_packets(df)
+
+    def get_total_header_len_backward_packets(df):
+        
+        """
+        This function calculates the total size
+        of headers in the backward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = get_dst_ip(df)
+        src_df = df[df["src"]==src]
+        return src_df["size"].sum() - get_total_len_forward_packets(df)
