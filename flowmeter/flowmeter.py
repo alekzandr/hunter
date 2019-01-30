@@ -555,3 +555,33 @@ class flowmeter:
         df = df.loc[df["src"]==ip]
         df["flags"] = self.decode_flags(df).str.contains(flag)
         return df[df["flags"] == True].shape[0]
+
+    def get_total_forward_push_flags(df):
+    
+        """
+        This function calculates the total number of
+        push flags in the forward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        
+        df = remove_duplicate_flags_col(df)
+        src = get_src_ip(df)
+        return count_flags(df, src, "P")
+
+    def get_total_backward_push_flags(df):
+        
+        """
+        This function calculates the total number of
+        push flags in the forward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        
+        df = remove_duplicate_flags_col(df)
+        src = get_dst_ip(df)
+        return count_flags(df, src, "P")
