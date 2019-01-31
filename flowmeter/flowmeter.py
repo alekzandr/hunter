@@ -853,3 +853,34 @@ class flowmeter:
         src = self.get_src_ip(df)
         dst = self.get_dst_ip(df)
         return self.count_flags(df, src, "R") + self.count_flags(df, dst, "R")
+
+    def get_total_flow_ack_flags(self, df):
+        
+        """
+        This function calculates the total number
+        of ack flags in the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        return self.count_flags(df, src, "A") + self.count_flags(df, dst, "A")
+
+
+    def get_total_flow_urg_flags(self, df):
+        
+        """
+        This function calculates the total number
+        of urgent flags in the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        return self.count_flags(df, src, "U") + self.count_flags(df, dst, "U")
