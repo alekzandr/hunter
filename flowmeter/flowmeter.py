@@ -177,8 +177,10 @@ class flowmeter:
         """
         This function returns the total time for the session flow.
         """
-        idx = df.columns.get_loc("time")
-        return 1000000 * (df.iloc[-1, idx] - df.iloc[0,idx])
+        df["date_time"] = pd.to_datetime(df["time"], unit="s")
+        idx = df.columns.get_loc("date_time")
+        return (df.iloc[-1, idx] - test_flow.iloc[0,idx]) / np.timedelta64(1, 's')
+
 		
     def get_total_len_forward_packets(self, df):
         
@@ -362,7 +364,7 @@ class flowmeter:
 
         src = self.get_src_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  src_df["time"].diff().sum() * 1000000
+        return  src_df["time"].diff().sum() 
 
     def get_iat_backward_total_time(self, df):
     
@@ -376,7 +378,7 @@ class flowmeter:
 
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  src_df["time"].diff().sum() * 1000000
+        return  src_df["time"].diff().sum() 
 
     def get_src_times(self, df):
     
@@ -419,7 +421,7 @@ class flowmeter:
         """
         
         src_times = self.get_src_times(df)
-        return  min(src_times.diff().dropna()) * 1000000
+        return  min(src_times.diff().dropna()) 
 
     def get_iat_backwards_min_times(self, df):
         
@@ -432,7 +434,7 @@ class flowmeter:
         """
         
         src_times = self.get_dst_times(df)
-        return  min(src_times.diff().dropna()) * 1000000
+        return  min(src_times.diff().dropna()) 
 
     def get_iat_forward_max_times(self, df):
     
@@ -445,7 +447,7 @@ class flowmeter:
         """
         
         src_times = self.get_src_times(df)
-        return  max(src_times.diff().dropna()) * 1000000
+        return  max(src_times.diff().dropna()) 
 
     def get_iat_backwards_max_times(self, df):
         
@@ -458,7 +460,7 @@ class flowmeter:
         """
         
         src_times = self.get_dst_times(df)
-        return  max(src_times.diff().dropna()) * 1000000
+        return  max(src_times.diff().dropna()) 
 
     def get_iat_forward_mean_times(self, df):
         
@@ -471,7 +473,7 @@ class flowmeter:
         """
         
         src_times = self.get_src_times(df)
-        return  src_times.diff().dropna().mean() * 1000000
+        return  src_times.diff().dropna().mean() 
 
     def get_iat_backwards_mean_times(self, df):
         
@@ -484,7 +486,7 @@ class flowmeter:
         """
         
         src_times = self.get_dst_times(df)
-        return  src_times.diff().dropna().mean() * 1000000
+        return  src_times.diff().dropna().mean() 
 
     def get_iat_forward_std_times(self, df):
     
@@ -497,7 +499,7 @@ class flowmeter:
         """
         
         src_times = self.get_src_times(df)
-        return  src_times.diff().dropna().std() * 1000000
+        return  src_times.diff().dropna().std() 
 
     def get_iat_backwards_std_times(self, df):
         
@@ -510,7 +512,7 @@ class flowmeter:
         """
         
         src_times = self.get_dst_times(df)
-        return  src_times.diff().dropna().std() * 1000000
+        return  src_times.diff().dropna().std() 
 
     def remove_duplicate_flags_col(self, df):
     
@@ -654,7 +656,7 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
             
-        return self.get_total_forward_packets(df) / self.get_flow_duration(df) / 1000000
+        return self.get_total_forward_packets(df) / self.get_flow_duration(df) 
 
     def get_backward_packets_per_second(self, df):
         
@@ -666,7 +668,7 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
 
-        return self.get_total_backward_packets(df) / self.get_flow_duration(df) / 1000000
+        return self.get_total_backward_packets(df) / self.get_flow_duration(df) 
 
     def get_flow_packets_per_second(self, df):
     
@@ -678,4 +680,4 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
 
-        return (self.get_total_backward_packets(df) + self.get_total_forward_packets(df)) / self.get_flow_duration(df) / 1000000
+        return (self.get_total_backward_packets(df) + self.get_total_forward_packets(df)) / self.get_flow_duration(df) 
