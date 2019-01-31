@@ -791,3 +791,34 @@ class flowmeter:
         """
     
         return  df["time"].diff().dropna().std()
+
+    def get_total_flow_push_flags(self, df):
+    
+        """
+        This function calculates the total number
+        of push flags in the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        return self.count_flags(df, src, "P") + self.count_flags(df, dst, "P")
+
+
+    def get_total_flow_fin_flags(self, df):
+        
+        """
+        This function calculates the total number
+        of finish flags in the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        return self.count_flags(df, src, "F") + self.count_flags(df, dst, "F")
