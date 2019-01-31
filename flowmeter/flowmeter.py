@@ -180,7 +180,7 @@ class flowmeter:
         idx = df.columns.get_loc("time")
         return 1000000 * (df.iloc[-1, idx] - df.iloc[0,idx])
 		
-    def get_total_len_foward_packets(self, df):
+    def get_total_len_forward_packets(self, df):
         
         """
         This function calculates the total length of all packets that
@@ -616,7 +616,7 @@ class flowmeter:
         src = self.get_dst_ip(df)
         return self.count_flags(df, src, "U")
 
-    def get_total_header_len_forward_packets(df):
+    def get_total_header_len_forward_packets(self, df):
     
         """
         This function calculates the total size
@@ -626,11 +626,11 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
             
-        src = get_src_ip(df)
+        src = self.get_src_ip(df)
         src_df = df[df["src"]==src]
-        return src_df["size"].sum() - get_total_len_forward_packets(df)
+        return src_df["size"].sum() - self.get_total_len_forward_packets(df)
 
-    def get_total_header_len_backward_packets(df):
+    def get_total_header_len_backward_packets(self, df):
         
         """
         This function calculates the total size
@@ -640,6 +640,30 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
         
-        src = get_dst_ip(df)
+        src = self.get_dst_ip(df)
         src_df = df[df["src"]==src]
-        return src_df["size"].sum() - get_total_len_forward_packets(df)
+        return src_df["size"].sum() - self.get_total_len_backward_packets(df)
+
+    def get_forward_packets_per_second(df):
+    
+        """
+        This function calculates number of packets
+        per second in the forward direction.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+            
+        return get_total_forward_packets(df) / get_flow_duration(df) / 1000000
+
+    def get_backward_packets_per_second(df):
+        
+        """
+        This function calculates number of packets
+        per second in the forward direction.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        return get_total_backward_packets(df) / get_flow_duration(df) / 1000000
