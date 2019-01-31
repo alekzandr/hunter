@@ -742,7 +742,7 @@ class flowmeter:
 
         return  df["payload"].std()
 
-    def get_min_flow_iat_packet(self, df):
+    def get_min_flow_iat(self, df):
     
         """
         This function calculates the min inter arival time
@@ -754,7 +754,7 @@ class flowmeter:
     
         return  min(df["time"].diff().dropna())
     
-    def get_max_flow_iat_packet(self, df):
+    def get_max_flow_iat(self, df):
     
         """
         This function calculates the max inter arival time
@@ -765,3 +765,29 @@ class flowmeter:
         """
     
         return  max(df["time"].diff().dropna())
+
+
+    def get_mean_flow_iat(self, df):
+    
+        """
+        This function calculates the mean inter arival time
+        from the flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        #src_times = get_src_times(df)
+        return df["time"].diff().dropna().mean()
+    
+    def get_std_flow_iat(self, df):
+    
+        """
+        This function calculates the inter arival time
+        standard deviation from the flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        return  df["time"].diff().dropna().std()
