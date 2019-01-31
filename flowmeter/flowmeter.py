@@ -179,7 +179,7 @@ class flowmeter:
         """
         df["date_time"] = pd.to_datetime(df["time"], unit="s")
         idx = df.columns.get_loc("date_time")
-        return (df.iloc[-1, idx] - test_flow.iloc[0,idx]) / np.timedelta64(1, 's')
+        return (df.iloc[-1, idx] - df.iloc[0,idx]) / np.timedelta64(1, 's')
 
 		
     def get_total_len_forward_packets(self, df):
@@ -195,7 +195,7 @@ class flowmeter:
         
         src = df["src"].unique().tolist()[0]
         src_df = df.loc[df["src"]==src]
-        return src_df["size"].sum()
+        return src_df["payload"].sum()
 		
     
     def get_total_len_backward_packets(self, df):
@@ -211,7 +211,7 @@ class flowmeter:
         
         bwd = df["src"].unique().tolist()[1]
         bwd_df = df.loc[df["src"]==bwd]
-        return bwd_df["size"].sum()
+        return bwd_df["payload"].sum()
 	
     def get_total_forward_packets(self, df):
     
@@ -680,21 +680,9 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
 
-        return (self.get_total_backward_packets(df) + self.get_total_forward_packets(df)) / self.get_flow_duration(df) 
+        return (self.get_total_backward_packets(df) + self.get_total_forward_packets(df)) / self.get_flow_duration(df)
 
-    def get_flow_packets_per_second(df):
-    
-        """
-        This function calculates number of packets
-        per second in the flow.
-            
-        Args:
-            df (Dataframe): A bi-directional flow pandas dataframe.
-        """
-
-        return (get_total_backward_packets(df) + get_total_forward_packets(df)) / get_flow_duration(df)
-
-    def get_flow_bytes_per_second(df):
+    def get_flow_bytes_per_second(self, df):
     
         """
         This function calculates number of bytes
@@ -704,4 +692,76 @@ class flowmeter:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
 
-        return (get_total_len_forward_packets(df) + get_total_len_backward_packets(df)) / get_flow_duration(df)
+        return (self.get_total_len_forward_packets(df) + self.get_total_len_backward_packets(df)) / self.get_flow_duration(df)
+
+    def get_min_flow_packet_size(self, df):
+    
+        """
+        This function calculates the minimum payload size that
+        originated from flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        return  min(df["payload"])
+        
+    def get_max_flow_packet_size(self, df):
+        
+        """
+        This function calculates the maximum payload size that
+        originated from the flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        return  max(df["payload"])
+
+    def get_mean_flow_packet_size(self, df):
+    
+        """
+        This function calculates the mean payload size that
+        originated from flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        return  df["payload"].mean()
+    
+    def get_std_flow_packet_size(self, df):
+
+        """
+        This function calculates the payloads tandard deviation size that
+        originated from the flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        return  df["payload"].std()
+
+    def get_min_flow_iat_packet(self, df):
+    
+        """
+        This function calculates the min inter arival time
+        from the flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        return  min(df["time"].diff().dropna())
+    
+    def get_max_flow_iat_packet(self, df):
+    
+        """
+        This function calculates the max inter arival time
+        from the flow.
+        
+        Args:
+        df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        return  max(df["time"].diff().dropna())
