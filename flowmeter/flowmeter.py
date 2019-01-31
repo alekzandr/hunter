@@ -681,3 +681,27 @@ class flowmeter:
         """
 
         return (self.get_total_backward_packets(df) + self.get_total_forward_packets(df)) / self.get_flow_duration(df) 
+
+    def get_flow_packets_per_second(df):
+    
+        """
+        This function calculates number of packets
+        per second in the flow.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        return (get_total_backward_packets(df) + get_total_forward_packets(df)) / get_flow_duration(df)
+
+    def get_flow_bytes_per_second(df):
+    
+        """
+        This function calculates number of bytes
+        per second in the flow.
+            
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        return (get_total_len_forward_packets(df) + get_total_len_backward_packets(df)) / get_flow_duration(df)
