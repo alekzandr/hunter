@@ -980,3 +980,14 @@ class flowmeter:
         """
         
         return self.get_total_len_forward_packets(df) / self.get_total_len_backward_packets(df)
+
+    def get_avg_packet_size(df):
+    
+        """
+        This finds the average packet size
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        return df["size"].mean()
