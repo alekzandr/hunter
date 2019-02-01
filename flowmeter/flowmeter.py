@@ -1021,3 +1021,33 @@ class flowmeter:
         src_df = df[df["src"]==src]
         
         return src_df["payload"].mean()
+
+    def get_avg_forward_burst_packets(self, df):
+    
+        """
+        This finds the average packets sent in burst
+        originating from the source.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_src_ip(df)
+        src_df = df[df["src"]==src]
+        
+        return self.get_average_burst_rate(src_df)
+
+    def get_avg_backward_burst_packets(self, df):
+        
+        """
+        This finds the average packets sent in burst
+        originating from the source.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_dst_ip(df)
+        src_df = df[df["src"]==src]
+        
+        return self.get_average_burst_rate(src_df)
