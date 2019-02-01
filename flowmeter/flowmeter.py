@@ -195,7 +195,7 @@ class flowmeter:
         
         src = df["src"].unique().tolist()[0]
         src_df = df.loc[df["src"]==src]
-        return src_df["payload"].sum()
+        return src_df["size"].sum()
 		
     
     def get_total_len_backward_packets(self, df):
@@ -211,7 +211,7 @@ class flowmeter:
         
         bwd = df["src"].unique().tolist()[1]
         bwd_df = df.loc[df["src"]==bwd]
-        return bwd_df["payload"].sum()
+        return bwd_df["size"].sum()
 	
     def get_total_forward_packets(self, df):
     
@@ -252,7 +252,7 @@ class flowmeter:
     
         src = self.get_src_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  min(src_df["payload"])
+        return  min(src_df["size"])
 
     def get_min_backward_packet_size(self, df):
     
@@ -266,7 +266,7 @@ class flowmeter:
     
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  min(src_df["payload"])
+        return  min(src_df["size"])
 
     def get_max_forward_packet_size(self, df):
     
@@ -280,7 +280,7 @@ class flowmeter:
     
         src = self.get_src_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  max(src_df["payload"])
+        return  max(src_df["size"])
 
     def get_max_backward_packet_size(self, df):
     
@@ -294,7 +294,7 @@ class flowmeter:
     
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  max(src_df["payload"])
+        return  max(src_df["size"])
 
     def get_mean_forward_packet_size(self, df):
     
@@ -308,7 +308,7 @@ class flowmeter:
     
         src = self.get_src_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  src_df["payload"].mean()
+        return  src_df["size"].mean()
 
     def get_mean_backward_packet_size(self, df):
     
@@ -322,7 +322,7 @@ class flowmeter:
     
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  src_df["payload"].mean()
+        return  src_df["size"].mean()
     
     def get_std_forward_packet_size(self, df):
     
@@ -336,7 +336,7 @@ class flowmeter:
     
         src = self.get_src_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  src_df["payload"].std()
+        return  src_df["size"].std()
 
     def get_std_backward_packet_size(self, df):
     
@@ -350,7 +350,7 @@ class flowmeter:
         
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  src_df["payload"].std()
+        return  src_df["size"].std()
 
     def get_iat_forward_total_time(self, df):
     
@@ -704,7 +704,7 @@ class flowmeter:
         df (Dataframe): A bi-directional flow pandas dataframe.
         """
     
-        return  min(df["payload"])
+        return  min(df["size"])
         
     def get_max_flow_packet_size(self, df):
         
@@ -716,7 +716,7 @@ class flowmeter:
         df (Dataframe): A bi-directional flow pandas dataframe.
         """
     
-        return  max(df["payload"])
+        return  max(df["size"])
 
     def get_mean_flow_packet_size(self, df):
     
@@ -728,7 +728,7 @@ class flowmeter:
         df (Dataframe): A bi-directional flow pandas dataframe.
         """
     
-        return  df["payload"].mean()
+        return  df["size"].mean()
     
     def get_std_flow_packet_size(self, df):
 
@@ -740,7 +740,7 @@ class flowmeter:
         df (Dataframe): A bi-directional flow pandas dataframe.
         """
 
-        return  df["payload"].std()
+        return  df["size"].std()
 
     def get_min_flow_iat(self, df):
     
@@ -981,7 +981,7 @@ class flowmeter:
         
         return self.get_total_len_forward_packets(df) / self.get_total_len_backward_packets(df)
 
-    def get_avg_packet_size(df):
+    def get_avg_packet_size(self, df):
     
         """
         This finds the average packet size
@@ -991,3 +991,33 @@ class flowmeter:
         """
         
         return df["size"].mean()
+
+    def get_avg_forward_segment_size(self, df):
+    
+        """
+        This finds the average segment size in
+        the forward direction.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_src_ip(df)
+        src_df = df[df["src"]==src]
+        
+        return src_df["payload"].mean()
+
+    def get_avg_backward_segment_size(self, df):
+        
+        """
+        This finds the average segment size in
+        the forward direction.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        src = self.get_dst_ip(df)
+        src_df = df[df["src"]==src]
+        
+        return src_df["payload"].mean()
