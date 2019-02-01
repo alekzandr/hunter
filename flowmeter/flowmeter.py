@@ -969,3 +969,14 @@ class flowmeter:
         src_burst_rate = self.get_average_burst_rate(src_df)
         src_bytes = self.get_total_len_forward_packets(src_df)
         return src_bytes / src_burst_rate
+
+    def get_upload_download_ratio(self, df):
+    
+        """
+        This finds the upload to download ratio.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        return self.get_total_len_forward_packets(df) / self.get_total_len_backward_packets(df)
