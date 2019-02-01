@@ -884,3 +884,53 @@ class flowmeter:
         src = self.get_src_ip(df)
         dst = self.get_dst_ip(df)
         return self.count_flags(df, src, "U") + self.count_flags(df, dst, "U")
+
+    def get_total_flow_cwr_flags(self, df):
+    
+        """
+        This function calculates the total number
+        of cwr flags in the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        return self.count_flags(df, src, "C") + self.count_flags(df, dst, "C")
+
+
+    def get_total_flow_ece_flags(self, df):
+        
+        """
+        This function calculates the total number
+        of ece flags in the flow.
+
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+        
+        df = self.remove_duplicate_flags_col(df)
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        return self.count_flags(df, src, "E") + self.count_flags(df, dst, "E")
+
+    def get_average_burst_rate(df, window=100):
+    
+        """
+        This is a helper function calculates the average burst rate
+        based on the number of packets sent in the 
+        burst window.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+            window (Int): The number in milliseconds to calculate the burst rate
+        """
+        
+        a = pd.DataFrame()
+        a["time"] = pd.to_datetime(df["time"], unit="s")
+        a["count"] = 1
+        a.set_index(["time"], inplace=True)
+        a["rolling"] = a.rolling('100ms').sum()
+        return a["rolling"].mean()
