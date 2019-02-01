@@ -916,7 +916,7 @@ class flowmeter:
         dst = self.get_dst_ip(df)
         return self.count_flags(df, src, "E") + self.count_flags(df, dst, "E")
 
-    def get_average_burst_rate(df, window=100):
+    def get_average_burst_rate(self, df, window=100):
     
         """
         This is a helper function calculates the average burst rate
@@ -934,3 +934,38 @@ class flowmeter:
         a.set_index(["time"], inplace=True)
         a["rolling"] = a.rolling('100ms').sum()
         return a["rolling"].mean()
+
+    def get_average_forward_bytes_per_burt(self, df, window=100):
+    
+        """
+        This finds the average bytes per burst
+        that originated from the source.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+            window (Int): The number in milliseconds to calculate the burst rate
+        """
+        
+        src = self.get_src_ip(df)
+        src_df = df[df["src"]==src]
+        src_burst_rate = self.get_average_burst_rate(src_df)
+        src_bytes = self.get_total_len_forward_packets(src_df)
+        return src_bytes / src_burst_rate
+
+
+    def get_average_backward_bytes_per_burt(self, df, window=100):
+        
+        """
+        This finds the average bytes per burst
+        that originated from the destination.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+            window (Int): The number in milliseconds to calculate the burst rate
+        """
+
+        src = self.get_dst_ip(df)
+        src_df = df[df["src"]==src]
+        src_burst_rate = self.get_average_burst_rate(src_df)
+        src_bytes = self.get_total_len_forward_packets(src_df)
+        return src_bytes / src_burst_rate
