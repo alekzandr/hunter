@@ -19,6 +19,68 @@ class Features:
         """
 
         self._pcap = rdpcap(pcap)
+        self.columns = [
+            "flow",                 # Index
+            "feduration",	        # Duration of the flow in Microsecond
+            "total_fpackets",	    # Total packets in the forward direction
+            "total_bpackets",	    # Total packets in the backward direction
+            "total_fpktl",	        # Total size of packet in forward direction
+            "total_bpktl",	        # Total size of packet in backward direction
+            "min_fpktl",	        # Minimum size of packet in forward direction
+            "min_bpktl",	        # Minimum size of packet in backward direction
+            "max_fpktl",            # Maximum size of packet in forward direction
+            "max_bpktl",	        # Maximum size of packet in backward direction
+            "mean_fpktl",	        # Mean size of packet in forward direction
+            "mean_bpktl",	        # Mean size of packet in backward direction
+            "std_fpktl",	        # Standard deviation size of packet in forward direction
+            "std_bpktl",	        # Standard deviation size of packet in backward direction
+            "total_fiat",	        # Total time between two packets sent in the forward direction
+            "total_biat",	        # Total time between two packets sent in the backward direction
+            "min_fiat", 	        # Minimum time between two packets sent in the forward direction
+            "min_biat", 	        # Minimum time between two packets sent in the backward direction
+            "max_fiat", 	        # Maximum time between two packets sent in the forward direction
+            "max_biat", 	        # Maximum time between two packets sent in the backward direction
+            "mean_fiat",	        # Mean time between two packets sent in the forward direction
+            "mean_biat",	        # Mean time between two packets sent in the backward direction
+            "std_fiat", 	        # Standard deviation time between two packets sent in the forward direction
+            "std_biat", 	        # Standard deviation time between two packets sent in the backward direction
+            "fpsh_cnt", 	        # Number of times the PSH flag was set in packets travelling in the forward direction (0 for UDP)
+            "bpsh_cnt", 	        # Number of times the PSH flag was set in packets travelling in the backward direction (0 for UDP)
+            "furg_cnt", 	        # Number of times the URG flag was set in packets travelling in the forward direction (0 for UDP)
+            "burg_cnt", 	        # Number of times the URG flag was set in packets travelling in the backward direction (0 for UDP)
+            "total_fhlen",	        # Total bytes used for headers in the forward direction
+            "total_bhlen",	        # Total bytes used for headers in the forward direction
+            "fPktsPerSecond",	    # Number of forward packets per second
+            "bPktsPerSecond",	    # Number of backward packets per second
+            "flowPktsPerSecond",	# Number of flow packets per second
+            "flowBytesPerSecond",	# Number of flow bytes per second
+            "min_flowpktl", 	    # Minimum length of a flow
+            "max_flowpktl",	        # Maximum length of a flow
+            "mean_flowpktl",	    # Mean length of a flow
+            "std_flowpktl", 	    # Standard deviation length of a flow
+            "min_flowiat",	        # Minimum inter-arrival time of packet
+            "max_flowiat",	        # Maximum inter-arrival time of packet
+            "mean_flowiat",	        # Mean inter-arrival time of packet
+            "std_flowiat",	        # Standard deviation inter-arrival time of packet
+            "flow_fin", 	        # Number of packets with FIN
+            "flow_syn", 	        # Number of packets with SYN
+            "flow_rst", 	        # Number of packets with RST
+            "flow_psh", 	        # Number of packets with PUSH
+            "flow_ack", 	        # Number of packets with ACK
+            "flow_urg", 	        # Number of packets with URG
+            "flow_cwr", 	        # Number of packets with CWE
+            "flow_ece", 	        # Number of packets with ECE
+            "downUpRatio",	        # Download and upload ratio
+            "avgPacketSize",	    # Average size of packet
+            "fAvgSegmentSize",	    # Average size observed in the forward direction
+            "fAvgBytesPerBulk",	    # Average number of bytes bulk rate in the forward direction
+            "fAvgPacketsPerBulk",	# Average number of packets bulk rate in the forward direction
+            "fAvgBulkRate", 	    # Average number of bulk rate in the forward direction
+            "bAvgSegmentSize",	    # Average size observed in the backward direction
+            "bAvgBytesPerBulk",	    # Average number of bytes bulk rate in the backward direction
+            "bAvgPacketsPerBulk",	# Average number of packets bulk rate in the backward direction
+            "bAvgBulkRate", 	    # Average number of bulk rate in the backward direction
+        ]
 
     def load_pcap(self, pcap):
 
@@ -1103,6 +1165,6 @@ class Features:
 
 
     def build_feature_dataframe(self, df):
-        src = self.get_src_ip(df)
-        dst = self.get_dst_ip(df)
+        index = self.build_index(df)
         result = pd.DataFrame()
+        result
