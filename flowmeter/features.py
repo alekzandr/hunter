@@ -842,8 +842,10 @@ class Features:
         Args:
         df (Dataframe): A bi-directional flow pandas dataframe.
         """
-    
-        return  min(df["time"].diff().dropna())
+        if df.shape[0] > 1:
+            return  min(df["time"].diff().dropna())
+        else:
+            return 0
     
     def get_max_flow_iat(self, df):
     
@@ -855,7 +857,10 @@ class Features:
         df (Dataframe): A bi-directional flow pandas dataframe.
         """
     
-        return  max(df["time"].diff().dropna())
+        if df.shape[0] > 1:
+            return  max(df["time"].diff().dropna())
+        else:
+            return 0
 
 
     def get_mean_flow_iat(self, df):
@@ -1206,7 +1211,7 @@ class Features:
         
 
         for session in sessions:
-            print(session)
+            print(session) # Testing code
             if session == "Other" or "Ethernet" in session or "ARP" in session: 
                 pass
             #elif "Ethernet" in session:
