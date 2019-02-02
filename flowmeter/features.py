@@ -235,8 +235,10 @@ class Features:
         """
         
         if df["src"].unique().shape == 2:
+            self.mulicast_flag = 0
             return df["src"].unique().tolist()[1]
         else:
+            self.mulicast_flag = 1
             return df["dst"].unique().tolist()[0]
 		
     def get_flow_duration(self, df):
@@ -1165,8 +1167,10 @@ class Features:
         src_port = src_df["sport"].unique()
         dst_port = dst_df["sport"].unique()
         
-        return ("{}:{}<->{}:{}").format(src,str(src_port[0]),dst,str(dst_port[0]))
-
+        if self.mulicast_flag == 0:
+            return ("{}:{}<->{}:{}").format(src,str(src_port[0]),dst,str(dst_port[0]))
+        else:
+            return ("{}:{}<->{}:{}").format(src,str(src_port[0]),dst,str(src_port[0]))
 
 
     def build_feature_dataframe(self):        
