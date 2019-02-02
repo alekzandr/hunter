@@ -278,9 +278,9 @@ class Features:
 			
         """
         
-        bwd = df["src"].unique().tolist()[1]
-        bwd_df = df.loc[df["src"]==bwd]
-        return bwd_df["size"].sum()
+        src = self.get_dst_ip
+        src_df = df.loc[df["src"]==src]
+        return src_df["size"].sum()
 	
     def get_total_forward_packets(self, df):
     
