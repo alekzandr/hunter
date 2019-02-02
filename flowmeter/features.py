@@ -1178,7 +1178,7 @@ class Features:
             #    pass
             else:
                 result = pd.DataFrame(columns=self.columns)
-                flow = sessions[session]
+                flow = self.build_dataframe(sessions[session])
                 result["flow"] = self.build_index(flow)
                 result["feduration"] = self.get_flow_duration(flow)
                 result["total_fpackets"] = self.get_total_forward_packets(flow)
