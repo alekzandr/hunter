@@ -80,6 +80,7 @@ class Features:
             "bAvgBytesPerBulk",	    # Average number of bytes bulk rate in the backward direction
             "bAvgPacketsPerBulk",	# Average number of packets bulk rate in the backward direction
             "bAvgBulkRate", 	    # Average number of bulk rate in the backward direction
+            "label",                # Classification Label
         ]
 
     def load_pcap(self, pcap):
@@ -1164,7 +1165,87 @@ class Features:
 
 
 
-    def build_feature_dataframe(self, df):
-        index = self.build_index(df)
-        result = pd.DataFrame()
-        result
+    def build_feature_dataframe(self):        
+        sessions = self.build_sessions()
+        frames = []
+        
+
+        for session in sessions:
+            print(session)
+            if session == "Other": 
+                pass
+            #elif "Ethernet" in session:
+            #    pass
+            else:
+                result = pd.DataFrame(columns=self.columns)
+                flow = sessions[session]
+                result["flow"] = self.build_index(flow)
+                result["feduration"] = self.get_flow_duration(flow)
+                result["total_fpackets"] = self.get_total_forward_packets(flow)
+                result["total_bpackets"] = self.get_total_backward_packets(flow)
+                result["total_fpktl"] = self.get_total_len_forward_packets(flow)
+                result["total_bpktl"] = self.get_total_len_backward_packets(flow)
+                result["min_fpktl"] = self.get_min_forward_packet_size(flow)
+                result["min_bpktl"] = self.get_min_backward_packet_size(flow)
+                result["max_fpktl"] = self.get_max_forward_packet_size(flow)
+                result["max_bpktl"] = self.get_max_backward_packet_size(flow)
+                result["mean_fpktl"] = self.get_mean_forward_packet_size(flow)
+                result["mean_bpktl"] = self.get_mean_backward_packet_size(flow)
+                result["std_fpktl"] = self.get_std_forward_packet_size(flow)
+                result["std_bpktl"] = self.get_std_backward_packet_size(flow)
+                result["total_fiat"] = self.get_iat_forward_total_time(flow)
+                result["total_biat"] = self.get_iat_backward_total_time(flow)
+                result["min_fiat"] = self.get_iat_forward_min_times(flow)
+                result["min_biat"] = self.get_iat_backwards_min_times(flow)
+                result["max_fiat"] = self.get_iat_forward_max_times(flow)
+                result["max_biat"] = self.get_iat_forward_max_times(flow)
+                result["mean_fiat"] = self.get_iat_forward_mean_times(flow)
+                result["mean_biat"] = self.get_iat_backwards_mean_times(flow)
+                result["std_fiat"] = self.get_iat_forward_std_times(flow)
+                result["std_biat"] = self.get_iat_backwards_std_times(flow)
+                result["fpsh_cnt"] = self.get_total_forward_push_flags(flow)
+                result["bpsh_cnt"] = self.get_total_backward_push_flags(flow)
+                result["furg_cnt"] = self.get_total_forward_urgent_flags(flow)
+                result["burg_cnt"] = self.get_total_backward_urgent_flags(flow)
+                result["total_fhlen"] = self.get_total_header_len_forward_packets(flow)
+                result["total_bhlen"] = self.get_total_header_len_backward_packets(flow)
+                result["fPktsPerSecond"] = self.get_forward_packets_per_second(flow)
+                result["bPktsPerSecond"] = self.get_backward_packets_per_second(flow)
+                result["flowPktsPerSecond"] = self.get_flow_packets_per_second(flow)
+                result["flowBytesPerSecond"] = self.get_flow_bytes_per_second(flow)
+                result["min_flowpktl"] = self.get_min_flow_packet_size(flow)
+                result["max_flowpktl"] = self.get_max_flow_packet_size(flow)
+                result["mean_flowpktl"] = self.get_mean_flow_packet_size(flow)
+                result["std_flowpktl"] = self.get_std_flow_packet_size(flow)
+                result["min_flowiat"] = self.get_min_flow_iat(flow)
+                result["max_flowiat"] = self.get_max_flow_iat(flow)
+                result["mean_flowiat"] = self.get_mean_flow_iat(flow)
+                result["std_flowiat"] = self.get_std_flow_iat(flow)
+                result["flow_fin"] = self.get_total_flow_fin_flags(flow)
+                result["flow_syn"] = self.get_total_flow_syn_flags(flow)
+                result["flow_rst"] = self.get_total_flow_reset_flags(flow)
+                result["flow_psh"] = self.get_total_flow_push_flags(flow)
+                result["flow_ack"] = self.get_total_flow_ack_flags(flow)
+                result["flow_urg"] = self.get_total_flow_urg_flags(flow)
+                result["flow_cwr"] = self.get_total_flow_cwr_flags(flow)
+                result["flow_ece"] = self.get_total_flow_ece_flags(flow)
+                result["downUpRatio"] = self.get_upload_download_ratio(flow)
+                result["avgPacketSize"] = self.get_avg_packet_size(flow)
+                result["fAvgSegmentSize"] = self.get_avg_forward_segment_size(flow)
+                result["fAvgBytesPerBulk"] = self.get_average_forward_bytes_per_burt(flow)
+                result["fAvgPacketsPerBulk"] = self.get_avg_forward_burst_packets(flow)
+                result["fAvgBulkRate"] = self.get_avg_forward_in_total_burst(flow)
+                result["bAvgSegmentSize"] = self.get_avg_backward_segment_size(flow)
+                result["bAvgBytesPerBulk"] = self.get_average_backward_bytes_per_burt(flow)
+                result["bAvgPacketsPerBulk"] = self.get_avg_backward_burst_packets(flow)
+                result["bAvgBulkRate"] = self.get_avg_backward_in_total_burst(flow)
+                result["label"] = None
+            
+                frames.append(result)
+
+        final = pd.concat(frames)
+        final.set_index(["flow"], inplace=True)
+
+        return final
+
+
