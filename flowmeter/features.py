@@ -233,7 +233,11 @@ class Features:
             df (Dataframe): A bi-directional flow pandas dataframe.
         
         """
-        return df["src"].unique().tolist()[1]
+        
+        if df["src"].unique().shape == 2:
+            return df["src"].unique().tolist()[1]
+        else:
+            return df["dst"].unique().tolist()[0]
 		
     def get_flow_duration(self, df):
         
