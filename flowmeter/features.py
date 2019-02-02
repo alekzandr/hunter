@@ -500,7 +500,10 @@ class Features:
         """
         
         src_times = self.get_src_times(df)
-        return  min(src_times.diff().dropna()) 
+        if src_times.shape[0] > 1:
+            return  min(src_times.diff().dropna()) 
+        else:
+            return src_times
 
     def get_iat_backwards_min_times(self, df):
         
@@ -529,7 +532,10 @@ class Features:
         """
         
         src_times = self.get_src_times(df)
-        return  max(src_times.diff().dropna()) 
+        if src_times.shape[0] > 1:
+            return  max(src_times.diff().dropna()) 
+        else:
+            return src_times
 
     def get_iat_backwards_max_times(self, df):
         
