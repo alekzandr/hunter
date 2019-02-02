@@ -235,10 +235,10 @@ class Features:
         """
         
         if df["src"].unique().shape == 2:
-            self.mulicast_flag = 0
+            self.multicast_flag = 0
             return df["src"].unique().tolist()[1]
         else:
-            self.mulicast_flag = 1
+            self.multicast_flag = 1
             return df["dst"].unique().tolist()[0]
 		
     def get_flow_duration(self, df):
@@ -262,7 +262,7 @@ class Features:
 			
         """
         
-        src = df["src"].unique().tolist()[0]
+        src = self.get_src_ip(df)
         src_df = df.loc[df["src"]==src]
         return src_df["size"].sum()
 		
@@ -277,9 +277,13 @@ class Features:
             df (Dataframe): A bi-directional flow pandas dataframe.
 			
         """
+
+        if self.multicast_flag == 1:
+            return 0
         
-        src = self.get_dst_ip
+        src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
+        
         return src_df["size"].sum()
 	
     def get_total_forward_packets(self, df):
@@ -335,7 +339,10 @@ class Features:
     
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  min(src_df["size"])
+        if self.multicast_flag == 1:
+            return 0
+        else:
+            return  min(src_df["size"])
 
     def get_max_forward_packet_size(self, df):
     
@@ -363,7 +370,10 @@ class Features:
     
         src = self.get_dst_ip(df)
         src_df = df.loc[df["src"]==src]
-        return  max(src_df["size"])
+        if self.multicast_flag == 1:
+            return 0
+        else:
+            return  max(src_df["size"])
 
     def get_mean_forward_packet_size(self, df):
     
@@ -503,7 +513,10 @@ class Features:
         """
         
         src_times = self.get_dst_times(df)
-        return  min(src_times.diff().dropna()) 
+        if self.multicast_flag == 1:
+            return 0
+        else:
+            return  min(src_times.diff().dropna()) 
 
     def get_iat_forward_max_times(self, df):
     
@@ -713,7 +726,10 @@ class Features:
         
         src = self.get_dst_ip(df)
         src_df = df[df["src"]==src]
-        return src_df["size"].sum() - self.get_total_len_backward_packets(df)
+        if self.multicast_flag == 1:
+            return 0
+        else:
+            return src_df["size"].sum() - self.get_total_len_backward_packets(df)
 
     def get_forward_packets_per_second(self, df):
     
@@ -1036,8 +1052,11 @@ class Features:
         src = self.get_dst_ip(df)
         src_df = df[df["src"]==src]
         src_burst_rate = self.get_average_burst_rate(src_df)
-        src_bytes = self.get_total_len_forward_packets(src_df)
-        return src_bytes / src_burst_rate
+        src_bytes = self.get_total_len_backward_packets(src_df)
+        if self.multicast_flag == 1:
+            return 0
+        else:
+            return src_bytes / src_burst_rate
 
     def get_upload_download_ratio(self, df):
     
@@ -1047,8 +1066,10 @@ class Features:
         Args:
             df (Dataframe): A bi-directional flow pandas dataframe.
         """
-        
-        return self.get_total_len_forward_packets(df) / self.get_total_len_backward_packets(df)
+        if self.multicast_flag == 1:
+            return 1
+        else:
+            return self.get_total_len_forward_packets(df) / self.get_total_len_backward_packets(df)
 
     def get_avg_packet_size(self, df):
     
@@ -1167,7 +1188,7 @@ class Features:
         src_port = src_df["sport"].unique()
         dst_port = dst_df["sport"].unique()
         
-        if self.mulicast_flag == 0:
+        if self.multicast_flag == 0:
             return ("{}:{}<->{}:{}").format(src,str(src_port[0]),dst,str(dst_port[0]))
         else:
             return ("{}:{}<->{}:{}").format(src,str(src_port[0]),dst,str(src_port[0]))
@@ -1180,7 +1201,7 @@ class Features:
 
         for session in sessions:
             print(session)
-            if session == "Other": 
+            if session == "Other" or "Ethernet" in session: 
                 pass
             #elif "Ethernet" in session:
             #    pass
