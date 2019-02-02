@@ -1207,7 +1207,7 @@ class Features:
 
         for session in sessions:
             print(session)
-            if session == "Other" or "Ethernet" in session: 
+            if session == "Other" or "Ethernet" in session or "ARP" in session: 
                 pass
             #elif "Ethernet" in session:
             #    pass
