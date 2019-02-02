@@ -1081,3 +1081,28 @@ class Features:
         src_df = df[df["src"]==src]
         
         return self.get_average_burst_rate(src_df) / self.get_average_burst_rate(df)
+
+    def build_index(self, df):
+
+        """
+        This buids the index to be used in the dataframe
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        src_df = df[df["src"]==src]
+        dst_df = df[df["src"]==dst]
+        src_port = src_df["sport"].unique()
+        dst_port = dst_df["sport"].unique()
+        
+        return ("{}:{}<->{}:{}").format(src,str(src_port[0]),dst,str(dst_port[0]))
+
+
+
+    def build_feature_dataframe(self, df):
+        src = self.get_src_ip(df)
+        dst = self.get_dst_ip(df)
+        result = pd.DataFrame()
