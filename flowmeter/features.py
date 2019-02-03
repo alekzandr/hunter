@@ -517,7 +517,7 @@ class Features:
         if src_times.shape[0] > 1:
             return  min(src_times.diff().dropna()) 
         else:
-            return src_times
+            return src_times.tolist()[0]
 
     def get_iat_backwards_min_times(self, df):
         
@@ -531,9 +531,9 @@ class Features:
         
         src_times = self.get_dst_times(df)
         if self.multicast_flag == 1 or src_times.shape[0] == 1:
-            return 0
+            return 0 # Test
         else:
-            return  min(src_times.diff().dropna()) 
+            return  min(src_times.diff().dropna().tolist()) 
 
     def get_iat_forward_max_times(self, df):
     
@@ -547,9 +547,9 @@ class Features:
         
         src_times = self.get_src_times(df)
         if src_times.shape[0] > 1:
-            return  max(src_times.diff().dropna()) 
+            return  max(src_times.diff().dropna().tolist()) 
         else:
-            return src_times
+            return src_times.tolist()[0]
 
     def get_iat_backwards_max_times(self, df):
         
