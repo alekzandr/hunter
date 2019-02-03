@@ -1209,6 +1209,30 @@ class Features:
         
         return self.get_average_burst_rate(src_df) / self.get_average_burst_rate(df)
 
+    def get_src_port(self, df):
+    
+        """
+        This finds the source port in the flow.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        df = df.iloc[0,]
+        return df[["src", "sport", "dst", "dport"]].tolist()[1]
+
+    def get_dst_port(self, df):
+    
+        """
+        This finds the destination port in the flow.
+        
+        Args:
+            df (Dataframe): A bi-directional flow pandas dataframe.
+        """
+    
+        df = df.iloc[0,]
+        return df[["src", "sport", "dst", "dport"]].tolist()[3]
+
     def build_index(self, df):
 
         """
@@ -1237,7 +1261,7 @@ class Features:
         
 
         for session in sessions:
-            print(session) # Testing code
+            # print(session) # Testing code
             if session == "Other" or "Ethernet" in session or "ARP" in session: 
                 pass
             #elif "Ethernet" in session:
@@ -1247,9 +1271,9 @@ class Features:
                 flow = self.build_dataframe(sessions[session])
                 result["flow"] = [self.build_index(flow)]
                 result["src"] = [self.get_src_ip(flow)]
-                result["src_port"] = ["TODO"]
+                result["src_port"] = [self.get_src_port(flow)]
                 result["dst"] = [self.get_dst_ip(flow)]
-                result["dst_port"] = ["TODO"]
+                result["dst_port"] = [self.get_dst_port(flow)]
                 result["feduration"] = [self.get_flow_duration(flow)]
                 result["total_fpackets"] = [self.get_total_forward_packets(flow)]
                 result["total_bpackets"] = [self.get_total_backward_packets(flow)]
@@ -1316,6 +1340,9 @@ class Features:
 
         final = pd.concat(frames)
         final.set_index(["flow"], inplace=True)
+        for column in final.columns:
+            final[column] = final[column].replace(r'\s+', np.nan, regex=True)
+            final[column] = final[column].fillna(0)
 
         return final
 
