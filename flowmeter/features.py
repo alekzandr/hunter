@@ -239,7 +239,7 @@ class Features:
         
         """
         
-        if df["src"].unique().shape == 2:
+        if df["src"].unique().shape[0] == 2:
             self.multicast_flag = 0
             return df["src"].unique().tolist()[1]
         else:
@@ -525,7 +525,7 @@ class Features:
         """
         
         src_times = self.get_dst_times(df)
-        if self.multicast_flag == 1:
+        if self.multicast_flag == 1 or src_times.shape[0] == 1:
             return 0
         else:
             return  min(src_times.diff().dropna()) 
@@ -1237,7 +1237,7 @@ class Features:
         
 
         for session in sessions:
-            #print(session) # Testing code
+            print(session) # Testing code
             if session == "Other" or "Ethernet" in session or "ARP" in session: 
                 pass
             #elif "Ethernet" in session:
