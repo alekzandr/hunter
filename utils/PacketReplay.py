@@ -1,47 +1,53 @@
 from scapy.all import *
 import argparse
 import datetime
+import time
+import os
+from flowmeter.flowmeter import Flowmeter
+import gc
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+import pandas as pd
+pd.options.mode.chained_assignment = None 
 
-count = 0
 
-def batch_generator(pcap_file, window=5):
-    packet_out = []
 
-    source_iterable = iter(pcap_file)
-    while True:
-        for packet in source_iterable:
-            packet_out.append(packet)
-            time_diff = packet.time - packet_out[0].time
-            if time_diff > time_window:
-                count += 1
-                last_packet = packet_out.pop()
-                batch_iter = iter(packet_out)
-                packet_out = [last_packet]
-                yield chain([batch_iter.next()])
+def delete_temp_pcaps(filename):
+    if os.path.exists(filename):
+        os.remove(filename)
+
+def convert_df_to_csv(df, out_file_name, count):
+    if count == 1:
+        df.to_csv(out_file_name, header=True, mode='a')
+        print("Creating File")
+    else:
+        df.to_csv(out_file_name, header=False, mode='a')
+        print("File Updated")
+
+def convert_pcap_to_df(out_file_name):
+    feature_gen = Flowmeter(out_file_name)
+    df = feature_gen.build_feature_dataframe()
+    return df
 
 def breakout_pcap(pcap_file, out_file_name, time_window=5, ):
 
     packet_out = []
     count = 0
-    try:
-        for packet in pcap_file:
-            packet_out.append(packet)
-            time_diff = packet.time - packet_out[0].time
-            if time_diff > time_window:
-                count += 1
-                last_packet = packet_out.pop()
-                print(count)
-                wrpcap(out_file_name + str(count) + ".pcap", packet_out)
-                packet_out = [last_packet]
-                
-    except:
-        count += 1
-        print(count)
-        wrpcap(out_file_name + str(count) + ".pcap", packet_out)
-        packet_out = []
+    for packet in pcap_file:
+        packet_out.append(packet)
+        time_diff = packet.time - packet_out[0].time
+        if time_diff > time_window:
+            count += 1
+            last_packet = packet_out.pop()
+            wrpcap(out_file_name + str(count)+ ".pcap", packet_out)
+            packet_out = [last_packet]
 
-    
-        
+            df = convert_pcap_to_df(out_file_name + str(count)+ ".pcap")
+            convert_df_to_csv(df, out_file_name+".csv", count)
+            delete_temp_pcaps(out_file_name + str(count)+ ".pcap")
+            df = None
+            gc.collect()
+                    
 
 if __name__ == "__main__":
 
@@ -53,8 +59,11 @@ if __name__ == "__main__":
     given_args = ga = parser.parse_args()   
     infile =  ga.infile
     try:
+        t0 = time.time()
         pkt_reader = PcapReader(infile)
-        breakout_pcap(pkt_reader, "test_out_file", 5)
+        breakout_pcap(pkt_reader, "tuesday-working-hours", 60)
+        t1 = time.time()
+        print(t1-t0)
     except IOError:
         print("Failed reading file %s contents" % infile)
         sys.exit(1)
